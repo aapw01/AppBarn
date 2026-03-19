@@ -66,6 +66,21 @@ a { color: inherit; text-decoration: none; }
   content: ''; position: absolute; left: 0; right: 0; bottom: -4px;
   height: 1.5px; background: var(--c-accent); border-radius: 1px;
 }
+.nav-stats {
+  display: flex; align-items: center; gap: 0;
+}
+.nav-stat {
+  font-size: 0.78rem; color: var(--c-text-muted);
+  padding: 0 12px;
+}
+.nav-stat strong {
+  font-weight: 700; color: var(--c-text);
+  margin-right: 3px;
+}
+.nav-stat-sep {
+  width: 1px; height: 14px;
+  background: var(--c-border);
+}
 .btn-submit {
   display: inline-flex; align-items: center; gap: 4px;
   padding: 6px 11px; border-radius: 5px;
@@ -79,44 +94,6 @@ a { color: inherit; text-decoration: none; }
   color: #ffffff;
 }
 .btn-submit:hover { opacity: 0.85; }
-
-/* ─── HERO ─── */
-.hero {
-  max-width: 1120px; margin: 0 auto; padding: 38px 32px 20px;
-  text-align: center;
-}
-.hero h1 {
-  font-family: var(--font-display);
-  font-size: 2.35rem; font-weight: 600;
-  letter-spacing: -0.026em; line-height: 1.2;
-  color: var(--c-text);
-  margin-bottom: 10px;
-}
-.hero p {
-  font-size: 0.98rem; color: var(--c-text-secondary);
-  max-width: 580px; margin: 0 auto 22px;
-  line-height: 1.58;
-}
-.hero-stats {
-  display: flex; gap: 48px; justify-content: center;
-  margin-top: 16px;
-}
-.hero-stat { text-align: center; }
-.hero-stat-num {
-  font-family: var(--font-display);
-  font-size: 1.7rem; font-weight: 600;
-  color: var(--c-text); line-height: 1.2;
-}
-.hero-stat-label {
-  font-size: 0.72rem; color: var(--c-text-muted);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  margin-top: 4px;
-}
-.hero-divider {
-  width: 48px; height: 1px;
-  background: var(--c-border);
-  margin: 22px auto 0;
-}
 
 /* ─── SECTION ─── */
 .section {
@@ -197,46 +174,91 @@ a { color: inherit; text-decoration: none; }
 .table tbody tr:hover { background: #F7F7F5; }
 .table tbody tr:last-child td { border-bottom: none; }
 
-/* 首页展示：更贴近高级产品目录的卡片化表格 */
-.home-showcase .table-wrap {
-  background: linear-gradient(180deg, #ffffff 0%, #fcfcfb 100%);
+/* ─── CARD GRID (首页) ─── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
 }
-.home-showcase .table {
-  border-collapse: separate;
-  border-spacing: 0 10px;
-  margin-top: -10px;
-}
-.home-showcase .table thead th {
-  background: transparent;
-  border-bottom: none;
-  padding: 2px 16px 4px;
-}
-.home-showcase .table tbody tr:hover {
-  background: transparent;
-}
-.home-showcase .table tbody td {
-  background: #ffffff;
-  border-top: 1px solid #ece9e3;
-  border-bottom: 1px solid #ece9e3;
-  border-left: none;
-  border-right: none;
-}
-.home-showcase .table tbody td:first-child {
-  border-left: 1px solid #ece9e3;
-  border-top-left-radius: 10px;
-  border-bottom-left-radius: 10px;
-}
-.home-showcase .table tbody td:last-child {
-  border-right: 1px solid #ece9e3;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
-}
-.home-showcase .table tbody tr {
+.card {
+  background: #EEF1F8;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex; flex-direction: column;
   transition: transform var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+  min-height: 180px;
+  text-decoration: none; color: inherit;
+  overflow: hidden;
+  min-width: 0;
 }
-.home-showcase .table tbody tr:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(20, 20, 20, 0.06);
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+}
+.card-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+  min-width: 0;
+}
+.card-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  object-fit: cover; flex-shrink: 0;
+  background: #fff;
+}
+.card-icon-placeholder {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; flex-shrink: 0;
+  color: var(--c-text-muted);
+}
+.card-meta {
+  flex: 1; min-width: 0; overflow: hidden;
+}
+.card-name {
+  font-size: 0.92rem; font-weight: 600;
+  color: var(--c-text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.card-author {
+  font-size: 0.74rem; color: var(--c-text-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-top: 1px;
+}
+.card-chevron {
+  flex-shrink: 0;
+  color: var(--c-text-muted);
+  transition: color var(--transition);
+}
+.card:hover .card-chevron { color: var(--c-text-secondary); }
+.card-desc {
+  font-size: 0.8rem; color: var(--c-text-secondary);
+  line-height: 1.55;
+  flex: 1;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: auto;
+}
+.card-tag {
+  font-size: 0.72rem; font-weight: 500;
+  color: var(--c-text-muted);
+}
+.card-link {
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--c-tag-app);
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.card-link:hover { opacity: 0.8; }
+.card-grid-empty {
+  grid-column: 1 / -1;
+  text-align: center; padding: 48px 16px;
+  color: var(--c-text-muted); font-size: 0.9rem;
 }
 
 .td-name {
@@ -470,12 +492,13 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── FOOTER ─── */
 .footer {
-  max-width: 1120px; margin: 0 auto;
+  max-width: 1120px; margin: 64px auto 0;
   padding: 32px;
   border-top: 1px solid var(--c-border-light);
   text-align: center;
   font-size: 0.78rem; color: var(--c-text-muted);
-  margin-top: 64px;
+  position: sticky;
+  top: 100vh;
 }
 
 /* ─── RESPONSIVE ─── */
@@ -493,6 +516,13 @@ a { color: inherit; text-decoration: none; }
   .td-desc { max-width: 180px; }
   .filter-search { width: 140px; }
   .filters { gap: 6px; }
+  .nav-stats { display: none; }
+  .card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .card { padding: 16px; min-height: 150px; }
+  .card-icon, .card-icon-placeholder { width: 38px; height: 38px; border-radius: 10px; }
+}
+@media (max-width: 480px) {
+  .card-grid { grid-template-columns: 1fr; }
 }
 
 /* ─── ANIMATIONS ─── */

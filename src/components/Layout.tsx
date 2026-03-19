@@ -4,9 +4,10 @@ import { css } from '../styles';
 type LayoutProps = PropsWithChildren<{
   title?: string;
   activePath?: string;
+  stats?: { approved: number; apps: number; system: number };
 }>;
 
-export const Layout: FC<LayoutProps> = ({ title, activePath, children }) => {
+export const Layout: FC<LayoutProps> = ({ title, activePath, stats, children }) => {
   const pageTitle = title ? `${title} — AppBarn` : 'AppBarn — Indie Dev Showcase';
   return (
     <html lang="zh-CN">
@@ -19,11 +20,20 @@ export const Layout: FC<LayoutProps> = ({ title, activePath, children }) => {
       <body>
         <nav class="nav">
           <a href="/" class="nav-brand">App<span>Barn</span></a>
+          {stats && (
+            <div class="nav-stats">
+              <span class="nav-stat"><strong>{stats.approved}</strong> Products</span>
+              <span class="nav-stat-sep" />
+              <span class="nav-stat"><strong>{stats.apps}</strong> Apps</span>
+              <span class="nav-stat-sep" />
+              <span class="nav-stat"><strong>{stats.system}</strong> Tools</span>
+            </div>
+          )}
           <div class="nav-links">
             <a href="/" class={activePath === '/' ? 'active' : ''}>Home</a>
             <a href="/apps" class={activePath === '/apps' ? 'active' : ''}>Browse</a>
             <a href="/submit" class="btn-submit">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               Submit
             </a>
           </div>
