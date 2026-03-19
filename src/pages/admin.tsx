@@ -1,23 +1,33 @@
 import type { FC } from 'hono/jsx';
 import { Layout } from '../components/Layout';
+import { serializeForScript, type Locale, type Messages } from '../i18n';
 
-export const AdminPage: FC = () => {
+export const AdminPage: FC<{
+  locale: Locale;
+  messages: Messages;
+}> = ({ locale, messages }) => {
+  const runtimeData = serializeForScript({
+    common: messages.common,
+    admin: messages.admin,
+    status: messages.status,
+  });
+
   return (
-    <Layout title="Admin">
+    <Layout title={messages.admin.title} locale={locale} messages={messages}>
       <section class="section" id="adminSection" style="display:none">
         <div class="admin-header">
-          <h2 class="admin-title">Admin Dashboard</h2>
+          <h2 class="admin-title">{messages.admin.heading}</h2>
           <div class="toggle-wrap">
-            <span>Moderation</span>
-            <button class="toggle" id="moderationToggle" title="Toggle moderation"></button>
+            <span>{messages.admin.moderation}</span>
+            <button class="toggle" id="moderationToggle" title={messages.admin.toggleTitle}></button>
           </div>
         </div>
 
         <div class="filters" id="adminFilters">
-          <button class="filter-tab active" data-filter="pending">Pending</button>
-          <button class="filter-tab" data-filter="approved">Approved</button>
-          <button class="filter-tab" data-filter="rejected">Rejected</button>
-          <button class="filter-tab" data-filter="all">All</button>
+          <button class="filter-tab active" data-filter="pending">{messages.admin.filters.pending}</button>
+          <button class="filter-tab" data-filter="approved">{messages.admin.filters.approved}</button>
+          <button class="filter-tab" data-filter="rejected">{messages.admin.filters.rejected}</button>
+          <button class="filter-tab" data-filter="all">{messages.admin.filters.all}</button>
         </div>
 
         <div id="adminTable"></div>
@@ -25,16 +35,17 @@ export const AdminPage: FC = () => {
 
       <div class="login-overlay" id="loginOverlay">
         <div class="login-card">
-          <h3>Admin Access</h3>
-          <p>Enter the admin token to continue.</p>
-          <input class="form-input" type="password" id="tokenInput" placeholder="Admin token" />
-          <button class="btn-primary" id="loginBtn">Enter</button>
+          <h3>{messages.admin.login.title}</h3>
+          <p>{messages.admin.login.subtitle}</p>
+          <input class="form-input" type="password" id="tokenInput" placeholder={messages.admin.login.placeholder} />
+          <button class="btn-primary" id="loginBtn">{messages.admin.login.action}</button>
           <div class="login-error" id="loginError" style="display:none"></div>
         </div>
       </div>
 
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
+          const runtime = ${runtimeData};
           let token = '';
           let currentFilter = 'pending';
           let allApps = [];
@@ -47,6 +58,15 @@ export const AdminPage: FC = () => {
           const toggle = document.getElementById('moderationToggle');
           const adminFilters = document.getElementById('adminFilters');
           const adminTable = document.getElementById('adminTable');
+
+          function escapeHtml(value) {
+            return String(value)
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+              .replace(/'/g, '&#39;');
+          }
 
           function api(path, opts) {
             opts = opts || {};
@@ -62,7 +82,7 @@ export const AdminPage: FC = () => {
             try {
               const res = await api('/settings');
               if (res.status === 401) {
-                loginError.textContent = 'Invalid token.';
+                loginError.textContent = runtime.admin.errors.invalidToken;
                 loginError.style.display = 'block';
                 return;
               }
@@ -72,7 +92,7 @@ export const AdminPage: FC = () => {
               section.style.display = 'block';
               await loadApps();
             } catch (e) {
-              loginError.textContent = 'Connection error.';
+              loginError.textContent = runtime.admin.errors.connection;
               loginError.style.display = 'block';
             } finally {
               loginBtn.disabled = false;
@@ -94,27 +114,27 @@ export const AdminPage: FC = () => {
               : allApps.filter(function(a){ return a.status === currentFilter; });
 
             if (filtered.length === 0) {
-              adminTable.innerHTML = '<div class="table-wrap"><div class="table-empty">No items in this category.</div></div>';
+              adminTable.innerHTML = '<div class="table-wrap"><div class="table-empty">' + runtime.admin.errors.empty + '</div></div>';
               return;
             }
 
-            let html = '<div class="table-wrap"><table class="table"><thead><tr><th>Type</th><th>Name</th><th>Description</th><th>Link</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+            let html = '<div class="table-wrap"><table class="table"><thead><tr><th>' + runtime.common.type + '</th><th>' + runtime.common.name + '</th><th>' + runtime.common.description + '</th><th>' + runtime.common.link + '</th><th>' + runtime.common.status + '</th><th>' + runtime.common.actions + '</th></tr></thead><tbody>';
             filtered.forEach(function(a) {
               const tagCls = a.type === 'app' ? 'tag-app' : 'tag-system';
-              const tagLabel = a.type === 'app' ? 'App' : 'System';
-              const linkLabel = a.type === 'app' ? 'App Store' : 'GitHub';
+              const tagLabel = a.type === 'app' ? runtime.common.app : runtime.common.system;
+              const linkLabel = a.type === 'app' ? runtime.common.appStore : runtime.common.github;
               const icon = a.image_key
-                ? '<img class="td-icon" src="/api/images/' + a.image_key + '" alt="" loading="lazy"/>'
+                ? '<img class="td-icon" src="/api/images/' + encodeURIComponent(a.image_key) + '" alt="" loading="lazy"/>'
                 : '<div class="td-icon-placeholder">' + (a.type === 'app' ? '📱' : '⚙️') + '</div>';
               const statusCls = 'tag-status tag-' + a.status;
               html += '<tr data-id="' + a.id + '">';
               html += '<td><span class="tag ' + tagCls + '">' + tagLabel + '</span></td>';
-              html += '<td><div class="td-name">' + icon + a.name + '</div></td>';
-              html += '<td class="td-desc">' + a.description + '</td>';
-              html += '<td class="td-link"><a href="' + a.link + '" target="_blank" rel="noopener">' + linkLabel + '</a></td>';
-              html += '<td><span class="' + statusCls + '">' + a.status + '</span></td>';
+              html += '<td><div class="td-name">' + icon + escapeHtml(a.name) + '</div></td>';
+              html += '<td class="td-desc">' + escapeHtml(a.description) + '</td>';
+              html += '<td class="td-link"><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + linkLabel + '</a></td>';
+              html += '<td><span class="' + statusCls + '">' + runtime.status[a.status] + '</span></td>';
               if (a.status === 'pending') {
-                html += '<td><div class="admin-actions"><button class="btn-approve" onclick="adminAction(\\'' + a.id + '\\',\\'approve\\')">Approve</button><button class="btn-reject" onclick="adminAction(\\'' + a.id + '\\',\\'reject\\')">Reject</button></div></td>';
+                html += '<td><div class="admin-actions"><button class="btn-approve" onclick="adminAction(\\'' + a.id + '\\',\\'approve\\')">' + runtime.admin.actions.approve + '</button><button class="btn-reject" onclick="adminAction(\\'' + a.id + '\\',\\'reject\\')">' + runtime.admin.actions.reject + '</button></div></td>';
               } else {
                 html += '<td></td>';
               }
@@ -128,7 +148,7 @@ export const AdminPage: FC = () => {
             const res = await api('/' + id + '/' + action, { method: 'POST' });
             if (res.ok) {
               await loadApps();
-              showToast(action === 'approve' ? 'Approved!' : 'Rejected.');
+              showToast(action === 'approve' ? runtime.admin.toasts.approved : runtime.admin.toasts.rejected);
             }
           };
 
@@ -141,7 +161,7 @@ export const AdminPage: FC = () => {
             });
             if (res.ok) {
               toggle.classList.toggle('active', newVal);
-              showToast(newVal ? 'Moderation enabled' : 'Moderation disabled — submissions go live instantly');
+              showToast(newVal ? runtime.admin.toasts.moderationEnabled : runtime.admin.toasts.moderationDisabled);
             }
           });
 

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { Env } from '../types';
 import { insertApp, isModerationEnabled, listApproved } from '../db';
+import { getRequestI18n } from '../i18n';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -10,6 +11,7 @@ app.get('/apps', async (c) => {
 });
 
 app.post('/apps', async (c) => {
+  const { messages } = getRequestI18n(c.req.raw.headers);
   const body = await c.req.json<{
     type: string;
     name: string;
@@ -19,11 +21,11 @@ app.post('/apps', async (c) => {
   }>();
 
   if (!body.name || !body.type || !body.description || !body.link) {
-    return c.json({ error: 'Missing required fields' }, 400);
+    return c.json({ error: messages.submit.errors.missingRequiredFields }, 400);
   }
 
   if (body.type !== 'app' && body.type !== 'system') {
-    return c.json({ error: 'Invalid type. Must be "app" or "system"' }, 400);
+    return c.json({ error: messages.submit.errors.invalidType }, 400);
   }
 
   const moderation = await isModerationEnabled(c.env.DB);

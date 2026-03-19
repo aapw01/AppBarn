@@ -5,7 +5,7 @@ export const css = `
 
 :root {
   --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'DM Sans', 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
 
   --c-bg: #FAFAF8;
   --c-surface: #FFFFFF;
@@ -501,6 +501,61 @@ a { color: inherit; text-decoration: none; }
   top: 100vh;
 }
 
+.locale-switcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(232, 230, 225, 0.88);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 10px 28px rgba(17, 17, 17, 0.08);
+}
+
+.locale-switcher-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-text-muted);
+  text-align: center;
+}
+
+.locale-switcher-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.locale-switcher-btn {
+  min-width: 52px;
+  padding: 8px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: rgba(250, 250, 248, 0.92);
+  color: var(--c-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.locale-switcher-btn:hover {
+  border-color: var(--c-text-muted);
+  color: var(--c-text);
+}
+
+.locale-switcher-btn.active {
+  background: var(--c-text);
+  border-color: var(--c-text);
+  color: var(--c-bg);
+}
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .nav { padding: 16px 20px; }
@@ -520,6 +575,11 @@ a { color: inherit; text-decoration: none; }
   .card-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .card { padding: 16px; min-height: 150px; }
   .card-icon, .card-icon-placeholder { width: 38px; height: 38px; border-radius: 10px; }
+  .locale-switcher {
+    right: 16px;
+    bottom: 16px;
+    padding: 10px;
+  }
 }
 @media (max-width: 480px) {
   .card-grid { grid-template-columns: 1fr; }

@@ -1,16 +1,19 @@
 import type { FC, PropsWithChildren } from 'hono/jsx';
 import { css } from '../styles';
+import { getHtmlLang, LOCALE_COOKIE_NAME, type Locale, type Messages } from '../i18n';
 
 type LayoutProps = PropsWithChildren<{
   title?: string;
   activePath?: string;
   stats?: { approved: number; apps: number; system: number };
+  locale: Locale;
+  messages: Messages;
 }>;
 
-export const Layout: FC<LayoutProps> = ({ title, activePath, stats, children }) => {
-  const pageTitle = title ? `${title} — AppBarn` : 'AppBarn — Indie Dev Showcase';
+export const Layout: FC<LayoutProps> = ({ title, activePath, stats, locale, messages, children }) => {
+  const pageTitle = title ? `${title} — AppBarn` : messages.meta.defaultTitle;
   return (
-    <html lang="zh-CN">
+    <html lang={getHtmlLang(locale)}>
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -22,26 +25,62 @@ export const Layout: FC<LayoutProps> = ({ title, activePath, stats, children }) 
           <a href="/" class="nav-brand">App<span>Barn</span></a>
           {stats && (
             <div class="nav-stats">
-              <span class="nav-stat"><strong>{stats.approved}</strong> Products</span>
+              <span class="nav-stat"><strong>{stats.approved}</strong> {messages.nav.products}</span>
               <span class="nav-stat-sep" />
-              <span class="nav-stat"><strong>{stats.apps}</strong> Apps</span>
+              <span class="nav-stat"><strong>{stats.apps}</strong> {messages.nav.apps}</span>
               <span class="nav-stat-sep" />
-              <span class="nav-stat"><strong>{stats.system}</strong> Tools</span>
+              <span class="nav-stat"><strong>{stats.system}</strong> {messages.nav.tools}</span>
             </div>
           )}
           <div class="nav-links">
-            <a href="/" class={activePath === '/' ? 'active' : ''}>Home</a>
-            <a href="/apps" class={activePath === '/apps' ? 'active' : ''}>Browse</a>
+            <a href="/" class={activePath === '/' ? 'active' : ''}>{messages.nav.home}</a>
+            <a href="/apps" class={activePath === '/apps' ? 'active' : ''}>{messages.nav.browse}</a>
             <a href="/submit" class="btn-submit">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Submit
+              {messages.nav.submit}
             </a>
           </div>
         </nav>
         {children}
         <footer class="footer">
-          AppBarn — A curated showcase of indie apps &amp; system tools.
+          {messages.footer.tagline}
         </footer>
+        <div class="locale-switcher" data-current-locale={locale}>
+          <div class="locale-switcher-label">{messages.common.language}</div>
+          <div class="locale-switcher-actions">
+            <button
+              type="button"
+              class={locale === 'en' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
+              data-locale="en"
+              title={messages.common.localeName.en}
+            >
+              {messages.common.localeShort.en}
+            </button>
+            <button
+              type="button"
+              class={locale === 'zh' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
+              data-locale="zh"
+              title={messages.common.localeName.zh}
+            >
+              {messages.common.localeShort.zh}
+            </button>
+          </div>
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            const switcher = document.querySelector('.locale-switcher');
+            if (!switcher) return;
+            const currentLocale = switcher.getAttribute('data-current-locale');
+            switcher.querySelectorAll('[data-locale]').forEach(function(button) {
+              button.addEventListener('click', function() {
+                const nextLocale = button.getAttribute('data-locale');
+                if (!nextLocale || nextLocale === currentLocale) return;
+                document.cookie = '${LOCALE_COOKIE_NAME}=' + encodeURIComponent(nextLocale) + '; path=/; max-age=31536000; samesite=lax';
+                window.location.reload();
+              });
+            });
+          })();
+        ` }} />
       </body>
     </html>
   );

@@ -1,9 +1,10 @@
 import type { FC } from 'hono/jsx';
+import { getDateLocale, type Locale, type Messages } from '../i18n';
 import type { AppRecord } from '../types';
 
-const formatDate = (d: string) => {
+const formatDate = (d: string, locale: Locale) => {
   const date = new Date(d + 'Z');
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(getDateLocale(locale), { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
 const linkIcon = (type: string) =>
@@ -13,13 +14,15 @@ const linkIcon = (type: string) =>
 
 export const AppTable: FC<{
   apps: AppRecord[];
+  locale: Locale;
+  messages: Messages;
   showStatus?: boolean;
   adminActions?: boolean;
-}> = ({ apps, showStatus, adminActions }) => {
+}> = ({ apps, locale, messages, showStatus, adminActions }) => {
   if (apps.length === 0) {
     return (
       <div class="table-wrap">
-        <div class="table-empty">No items yet.</div>
+        <div class="table-empty">{messages.common.noItemsYet}</div>
       </div>
     );
   }
@@ -29,13 +32,13 @@ export const AppTable: FC<{
       <table class="table">
         <thead>
           <tr>
-            <th>Type</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Link</th>
-            <th>Date</th>
-            {showStatus && <th>Status</th>}
-            {adminActions && <th>Actions</th>}
+            <th>{messages.common.type}</th>
+            <th>{messages.common.name}</th>
+            <th>{messages.common.description}</th>
+            <th>{messages.common.link}</th>
+            <th>{messages.common.date}</th>
+            {showStatus && <th>{messages.common.status}</th>}
+            {adminActions && <th>{messages.common.actions}</th>}
           </tr>
         </thead>
         <tbody>
@@ -43,7 +46,7 @@ export const AppTable: FC<{
             <tr data-id={app.id}>
               <td>
                 <span class={`tag tag-${app.type}`}>
-                  {app.type === 'app' ? 'App' : 'System'}
+                  {app.type === 'app' ? messages.common.app : messages.common.system}
                 </span>
               </td>
               <td>
@@ -62,20 +65,20 @@ export const AppTable: FC<{
               <td class="td-link">
                 <a href={app.link} target="_blank" rel="noopener">
                   <span dangerouslySetInnerHTML={{ __html: linkIcon(app.type) }} />
-                  {app.type === 'app' ? 'App Store' : 'GitHub'}
+                  {app.type === 'app' ? messages.common.appStore : messages.common.github}
                 </a>
               </td>
-              <td class="td-time">{formatDate(app.created_at)}</td>
+              <td class="td-time">{formatDate(app.created_at, locale)}</td>
               {showStatus && (
                 <td>
-                  <span class={`tag-status tag-${app.status}`}>{app.status}</span>
+                  <span class={`tag-status tag-${app.status}`}>{messages.status[app.status]}</span>
                 </td>
               )}
               {adminActions && app.status === 'pending' && (
                 <td>
                   <div class="admin-actions">
-                    <button class="btn-approve" onclick={`adminAction('${app.id}','approve')`}>Approve</button>
-                    <button class="btn-reject" onclick={`adminAction('${app.id}','reject')`}>Reject</button>
+                    <button class="btn-approve" onclick={`adminAction('${app.id}','approve')`}>{messages.admin.actions.approve}</button>
+                    <button class="btn-reject" onclick={`adminAction('${app.id}','reject')`}>{messages.admin.actions.reject}</button>
                   </div>
                 </td>
               )}

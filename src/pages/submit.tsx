@@ -1,63 +1,80 @@
 import type { FC } from 'hono/jsx';
 import { Layout } from '../components/Layout';
+import { serializeForScript, type Locale, type Messages } from '../i18n';
 
-export const SubmitPage: FC<{ moderationEnabled: boolean }> = ({ moderationEnabled }) => {
+export const SubmitPage: FC<{
+  moderationEnabled: boolean;
+  locale: Locale;
+  messages: Messages;
+}> = ({ moderationEnabled, locale, messages }) => {
+  const runtimeData = serializeForScript({
+    linkLabels: {
+      app: messages.submit.labels.linkApp,
+      system: messages.submit.labels.linkSystem,
+    },
+    file: messages.submit.file,
+    actions: messages.submit.actions,
+    success: messages.submit.success,
+    errors: messages.submit.errors,
+  });
+
   return (
-    <Layout title="Submit" activePath="/submit">
+    <Layout title={messages.submit.title} activePath="/submit" locale={locale} messages={messages}>
       <section class="section">
         <div class="form-card animate-in">
-          <h2>Submit a Product</h2>
+          <h2>{messages.submit.heading}</h2>
           <p class="subtitle">
-            Share your app or system tool with the community.
+            {messages.submit.subtitle}
             {moderationEnabled
-              ? ' Submissions will be reviewed before going live.'
-              : ' Submissions go live instantly.'}
+              ? ` ${messages.submit.moderationEnabled}`
+              : ` ${messages.submit.moderationDisabled}`}
           </p>
 
           <div class="form-type-tabs" id="typeTabs">
-            <button class="form-type-tab active" data-type="app">App</button>
-            <button class="form-type-tab" data-type="system">System Tool</button>
+            <button class="form-type-tab active" data-type="app">{messages.submit.tabs.app}</button>
+            <button class="form-type-tab" data-type="system">{messages.submit.tabs.system}</button>
           </div>
 
           <form id="submitForm">
             <input type="hidden" name="type" id="typeInput" value="app" />
 
             <div class="form-group">
-              <label class="form-label">Name</label>
-              <input class="form-input" type="text" name="name" required placeholder="Your product name" />
+              <label class="form-label">{messages.submit.labels.name}</label>
+              <input class="form-input" type="text" name="name" required placeholder={messages.submit.placeholders.name} />
             </div>
 
             <div class="form-group">
-              <label class="form-label">Description</label>
-              <textarea class="form-textarea" name="description" required placeholder="Brief description of what it does…"></textarea>
+              <label class="form-label">{messages.submit.labels.description}</label>
+              <textarea class="form-textarea" name="description" required placeholder={messages.submit.placeholders.description}></textarea>
             </div>
 
             <div class="form-group">
-              <label class="form-label" id="linkLabel">App Store Link</label>
-              <input class="form-input" type="url" name="link" required placeholder="https://" />
+              <label class="form-label" id="linkLabel">{messages.submit.labels.linkApp}</label>
+              <input class="form-input" type="url" name="link" required placeholder={messages.submit.placeholders.link} />
             </div>
 
             <div class="form-group">
-              <label class="form-label">Icon / Screenshot <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
+              <label class="form-label">{messages.submit.labels.image} <span style="font-weight:400;text-transform:none;letter-spacing:0">({messages.submit.labels.optional})</span></label>
               <label class="form-file-label" id="fileLabel">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-                <span id="fileLabelText">Click to upload image</span>
+                <span id="fileLabelText">{messages.submit.file.upload}</span>
                 <input type="file" name="image" accept="image/*" id="fileInput" />
               </label>
               <div class="form-file-preview" id="filePreview" style="display:none">
                 <img id="previewImg" src="" alt="" />
                 <span class="file-name" id="fileName"></span>
               </div>
-              <div class="form-hint">Max 5 MB. PNG, JPG, WebP, SVG.</div>
+              <div class="form-hint">{messages.submit.file.hint}</div>
             </div>
 
-            <button type="submit" class="btn-primary" id="submitBtn">Submit Product</button>
+            <button type="submit" class="btn-primary" id="submitBtn">{messages.submit.actions.submit}</button>
           </form>
         </div>
       </section>
 
       <script dangerouslySetInnerHTML={{ __html: `
         (function(){
+          const runtime = ${runtimeData};
           const form = document.getElementById('submitForm');
           const typeTabs = document.getElementById('typeTabs');
           const typeInput = document.getElementById('typeInput');
@@ -74,7 +91,7 @@ export const SubmitPage: FC<{ moderationEnabled: boolean }> = ({ moderationEnabl
             typeTabs.querySelectorAll('.form-type-tab').forEach(function(t){ t.classList.remove('active'); });
             e.target.classList.add('active');
             typeInput.value = e.target.dataset.type;
-            linkLabel.textContent = e.target.dataset.type === 'app' ? 'App Store Link' : 'GitHub Link';
+            linkLabel.textContent = e.target.dataset.type === 'app' ? runtime.linkLabels.app : runtime.linkLabels.system;
           });
 
           fileInput.addEventListener('change', function() {
@@ -83,13 +100,13 @@ export const SubmitPage: FC<{ moderationEnabled: boolean }> = ({ moderationEnabl
             fileName.textContent = file.name;
             previewImg.src = URL.createObjectURL(file);
             filePreview.style.display = 'flex';
-            fileLabelText.textContent = 'Change image';
+            fileLabelText.textContent = runtime.file.change;
           });
 
           form.addEventListener('submit', async function(e) {
             e.preventDefault();
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting…';
+            submitBtn.textContent = runtime.actions.submitting;
 
             try {
               let imageKey = null;
@@ -98,7 +115,10 @@ export const SubmitPage: FC<{ moderationEnabled: boolean }> = ({ moderationEnabl
                 const fd = new FormData();
                 fd.append('file', file);
                 const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
-                if (!upRes.ok) throw new Error('Image upload failed');
+                if (!upRes.ok) {
+                  const upData = await upRes.json().catch(function(){ return {}; });
+                  throw new Error(upData.error || runtime.errors.imageUploadFailed);
+                }
                 const upData = await upRes.json();
                 imageKey = upData.key;
               }
@@ -118,27 +138,27 @@ export const SubmitPage: FC<{ moderationEnabled: boolean }> = ({ moderationEnabl
               });
 
               if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Submission failed');
+                const err = await res.json().catch(function(){ return {}; });
+                throw new Error(err.error || runtime.errors.submissionFailed);
               }
 
               const data = await res.json();
               const msg = data.status === 'approved'
-                ? 'Submitted successfully! Your product is now live.'
-                : 'Submitted successfully! Awaiting review.';
+                ? runtime.success.approved
+                : runtime.success.pending;
               showToast(msg);
               form.reset();
               filePreview.style.display = 'none';
-              fileLabelText.textContent = 'Click to upload image';
+              fileLabelText.textContent = runtime.file.upload;
               typeTabs.querySelectorAll('.form-type-tab').forEach(function(t){ t.classList.remove('active'); });
               typeTabs.querySelector('[data-type="app"]').classList.add('active');
               typeInput.value = 'app';
-              linkLabel.textContent = 'App Store Link';
+              linkLabel.textContent = runtime.linkLabels.app;
             } catch (err) {
               showToast(err.message, true);
             } finally {
               submitBtn.disabled = false;
-              submitBtn.textContent = 'Submit Product';
+              submitBtn.textContent = runtime.actions.submit;
             }
           });
 
