@@ -7,6 +7,10 @@
 - 用户可提交 `System`（名称、介绍、图片可选、GitHub 链接）
 - 管理后台支持审核开关（开：需审核；关：直接上线）
 
+## 在线体验
+
+[appbarn.trycode.uk](https://appbarn.trycode.uk)
+
 ## 技术栈
 
 - **Hono**：运行在 Cloudflare Workers 的轻量 Web 框架（SSR）
