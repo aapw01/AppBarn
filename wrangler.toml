@@ -1,0 +1,12 @@
+name = "appbarn-page"
+main = "src/index.tsx"
+compatibility_date = "2024-12-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "appbarn-db"
+database_id = "2e7a1149-99f9-468f-a8c5-d43d4088f9bf"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "appbarn-images"
