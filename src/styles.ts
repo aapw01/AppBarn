@@ -503,46 +503,82 @@ a { color: inherit; text-decoration: none; }
 
 .locale-switcher {
   position: fixed;
-  right: 24px;
-  bottom: 24px;
+  right: 18px;
+  bottom: 18px;
   z-index: 120;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  border: 1px solid rgba(232, 230, 225, 0.88);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 10px 28px rgba(17, 17, 17, 0.08);
 }
 
-.locale-switcher-label {
-  font-size: 0.68rem;
+.locale-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 56px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(232, 230, 225, 0.96);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.08);
+  color: var(--c-text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.locale-trigger:hover,
+.locale-switcher.open .locale-trigger {
+  color: var(--c-text);
+  border-color: rgba(209, 206, 199, 0.96);
+}
+
+.locale-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  display: none;
+  min-width: 122px;
+  padding: 10px;
+  border: 1px solid rgba(232, 230, 225, 0.96);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 34px rgba(17, 17, 17, 0.1);
+}
+
+.locale-switcher.open .locale-menu {
+  display: block;
+}
+
+.locale-menu-label {
+  margin-bottom: 8px;
+  font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--c-text-muted);
   text-align: center;
 }
 
-.locale-switcher-actions {
-  display: flex;
-  gap: 8px;
-}
-
 .locale-switcher-btn {
-  min-width: 52px;
-  padding: 8px 12px;
+  min-width: 44px;
+  height: 34px;
+  padding: 0 12px;
   border: 1px solid var(--c-border);
   border-radius: 999px;
-  background: rgba(250, 250, 248, 0.92);
+  background: rgba(250, 250, 248, 0.95);
   color: var(--c-text-secondary);
   font-family: var(--font-body);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition);
+}
+
+.locale-switcher-actions {
+  display: flex;
+  gap: 6px;
 }
 
 .locale-switcher-btn:hover {
@@ -578,7 +614,6 @@ a { color: inherit; text-decoration: none; }
   .locale-switcher {
     right: 16px;
     bottom: 16px;
-    padding: 10px;
   }
 }
 @media (max-width: 480px) {

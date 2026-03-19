@@ -46,31 +46,52 @@ export const Layout: FC<LayoutProps> = ({ title, activePath, stats, locale, mess
           {messages.footer.tagline}
         </footer>
         <div class="locale-switcher" data-current-locale={locale}>
-          <div class="locale-switcher-label">{messages.common.language}</div>
-          <div class="locale-switcher-actions">
-            <button
-              type="button"
-              class={locale === 'en' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
-              data-locale="en"
-              title={messages.common.localeName.en}
-            >
-              {messages.common.localeShort.en}
-            </button>
-            <button
-              type="button"
-              class={locale === 'zh' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
-              data-locale="zh"
-              title={messages.common.localeName.zh}
-            >
-              {messages.common.localeShort.zh}
-            </button>
+          <button type="button" class="locale-trigger" aria-haspopup="true" aria-expanded="false">
+            <span>{messages.common.localeShort[locale]}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <div class="locale-menu">
+            <div class="locale-menu-label">{messages.common.language}</div>
+            <div class="locale-switcher-actions">
+              <button
+                type="button"
+                class={locale === 'en' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
+                data-locale="en"
+                title={messages.common.localeName.en}
+              >
+                {messages.common.localeShort.en}
+              </button>
+              <button
+                type="button"
+                class={locale === 'zh' ? 'locale-switcher-btn active' : 'locale-switcher-btn'}
+                data-locale="zh"
+                title={messages.common.localeName.zh}
+              >
+                {messages.common.localeShort.zh}
+              </button>
+            </div>
           </div>
         </div>
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
             const switcher = document.querySelector('.locale-switcher');
             if (!switcher) return;
+            const trigger = switcher.querySelector('.locale-trigger');
             const currentLocale = switcher.getAttribute('data-current-locale');
+            function closeMenu() {
+              switcher.classList.remove('open');
+              if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            }
+            if (trigger) {
+              trigger.addEventListener('click', function(event) {
+                event.stopPropagation();
+                const shouldOpen = !switcher.classList.contains('open');
+                switcher.classList.toggle('open', shouldOpen);
+                trigger.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+              });
+            }
             switcher.querySelectorAll('[data-locale]').forEach(function(button) {
               button.addEventListener('click', function() {
                 const nextLocale = button.getAttribute('data-locale');
@@ -78,6 +99,12 @@ export const Layout: FC<LayoutProps> = ({ title, activePath, stats, locale, mess
                 document.cookie = '${LOCALE_COOKIE_NAME}=' + encodeURIComponent(nextLocale) + '; path=/; max-age=31536000; samesite=lax';
                 window.location.reload();
               });
+            });
+            document.addEventListener('click', function(event) {
+              if (!switcher.contains(event.target)) closeMenu();
+            });
+            document.addEventListener('keydown', function(event) {
+              if (event.key === 'Escape') closeMenu();
             });
           })();
         ` }} />
