@@ -50,13 +50,19 @@ npx wrangler r2 bucket create appbarn-images
 
 ### Step 4：更新 `wrangler.toml`
 
-打开 `wrangler.toml`，把下面占位符：
+仓库默认只提交 `wrangler.toml.example`。先复制一份本地配置：
+
+```bash
+cp wrangler.toml.example wrangler.toml
+```
+
+再打开本地 `wrangler.toml`，把下面占位符：
 
 ```toml
 database_id = "placeholder-replace-after-d1-create"
 ```
 
-替换为你刚创建 D1 时得到的真实 `database_id`。
+替换为你刚创建 D1 时得到的真实 `database_id`。这个本地 `wrangler.toml` 不会上传到 GitHub。
 
 ### Step 5：初始化数据库表结构
 
@@ -135,7 +141,7 @@ npm run deploy
 
 ### 2) 图片上传失败
 
-- 检查 R2 bucket 是否创建成功并与 `wrangler.toml` 的 `bucket_name` 一致
+- 检查 R2 bucket 是否创建成功并与本地 `wrangler.toml` 的 `bucket_name` 一致
 - 检查文件大小是否超过 5MB，格式是否为常见图片格式
 
 ### 3) 数据库没有数据
