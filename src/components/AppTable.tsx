@@ -1,4 +1,5 @@
 import type { FC } from 'hono/jsx';
+import { getTypeMeta } from '../catalog';
 import { getDateLocale, type Locale, type Messages } from '../i18n';
 import type { AppRecord } from '../types';
 
@@ -10,7 +11,9 @@ const formatDate = (d: string, locale: Locale) => {
 const linkIcon = (type: string) =>
   type === 'app'
     ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></svg>`
-    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`;
+    : type === 'system'
+      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
 
 export const AppTable: FC<{
   apps: AppRecord[];
@@ -42,49 +45,52 @@ export const AppTable: FC<{
           </tr>
         </thead>
         <tbody>
-          {apps.map((app) => (
-            <tr data-id={app.id}>
-              <td>
-                <span class={`tag tag-${app.type}`}>
-                  {app.type === 'app' ? messages.common.app : messages.common.system}
-                </span>
-              </td>
-              <td>
-                <div class="td-name">
-                  {app.image_key ? (
-                    <img class="td-icon" src={`/api/images/${app.image_key}`} alt="" loading="lazy" />
-                  ) : (
-                    <div class="td-icon-placeholder">
-                      {app.type === 'app' ? '📱' : '⚙️'}
-                    </div>
-                  )}
-                  {app.name}
-                </div>
-              </td>
-              <td class="td-desc">{app.description}</td>
-              <td class="td-link">
-                <a href={app.link} target="_blank" rel="noopener">
-                  <span dangerouslySetInnerHTML={{ __html: linkIcon(app.type) }} />
-                  {app.type === 'app' ? messages.common.appStore : messages.common.github}
-                </a>
-              </td>
-              <td class="td-time">{formatDate(app.created_at, locale)}</td>
-              {showStatus && (
+          {apps.map((app) => {
+            const typeMeta = getTypeMeta(app.type, messages);
+            return (
+              <tr data-id={app.id}>
                 <td>
-                  <span class={`tag-status tag-${app.status}`}>{messages.status[app.status]}</span>
+                  <span class={`tag ${typeMeta.tagClass}`}>
+                    {typeMeta.label}
+                  </span>
                 </td>
-              )}
-              {adminActions && app.status === 'pending' && (
                 <td>
-                  <div class="admin-actions">
-                    <button class="btn-approve" onclick={`adminAction('${app.id}','approve')`}>{messages.admin.actions.approve}</button>
-                    <button class="btn-reject" onclick={`adminAction('${app.id}','reject')`}>{messages.admin.actions.reject}</button>
+                  <div class="td-name">
+                    {app.image_key ? (
+                      <img class="td-icon" src={`/api/images/${app.image_key}`} alt="" loading="lazy" />
+                    ) : (
+                      <div class="td-icon-placeholder">
+                        {typeMeta.icon}
+                      </div>
+                    )}
+                    {app.name}
                   </div>
                 </td>
-              )}
-              {adminActions && app.status !== 'pending' && <td></td>}
-            </tr>
-          ))}
+                <td class="td-desc">{app.description}</td>
+                <td class="td-link">
+                  <a href={app.link} target="_blank" rel="noopener">
+                    <span dangerouslySetInnerHTML={{ __html: linkIcon(app.type) }} />
+                    {typeMeta.linkLabel}
+                  </a>
+                </td>
+                <td class="td-time">{formatDate(app.created_at, locale)}</td>
+                {showStatus && (
+                  <td>
+                    <span class={`tag-status tag-${app.status}`}>{messages.status[app.status]}</span>
+                  </td>
+                )}
+                {adminActions && app.status === 'pending' && (
+                  <td>
+                    <div class="admin-actions">
+                      <button class="btn-approve" onclick={`adminAction('${app.id}','approve')`}>{messages.admin.actions.approve}</button>
+                      <button class="btn-reject" onclick={`adminAction('${app.id}','reject')`}>{messages.admin.actions.reject}</button>
+                    </div>
+                  </td>
+                )}
+                {adminActions && app.status !== 'pending' && <td></td>}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

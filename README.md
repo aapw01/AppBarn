@@ -3,6 +3,7 @@
 一个完全基于 Cloudflare 免费资源部署的独立开发者产品展示站：
 
 - 用户可提交 `App`（名称、介绍、图片可选、App Store 链接）
+- 用户可提交 `Website`（名称、介绍、图片可选、网站链接）
 - 用户可提交 `System`（名称、介绍、图片可选、GitHub 链接）
 - 管理后台支持审核开关（开：需审核；关：直接上线）
 
@@ -71,6 +72,12 @@ npx wrangler d1 execute appbarn-db --local --file=schema.sql
 npx wrangler d1 execute appbarn-db --remote --file=schema.sql
 ```
 
+如果你是在已有的 `App/System` 版本上升级到支持 `Website` 类型，还需要执行一次迁移：
+
+```bash
+npx wrangler d1 execute appbarn-db --remote --file=migrations/20260319_add_website_type.sql
+```
+
 ### Step 6：配置管理员密钥
 
 ```bash
@@ -103,11 +110,12 @@ npm run deploy
 ## 上线后检查清单
 
 1. 提交一个 App（可不传图片）是否成功
-2. 提交一个 System（可不传图片）是否成功
-3. 管理后台切换“审核开关”是否生效  
+2. 提交一个 Website（可不传图片）是否成功
+3. 提交一个 System（可不传图片）是否成功
+4. 管理后台切换“审核开关”是否生效  
    - 开启审核：提交后应进入 `pending`  
    - 关闭审核：提交后应直接 `approved`
-4. 图片链接是否可访问（`/api/images/:key`）
+5. 图片链接是否可访问（`/api/images/:key`）
 
 ## 页面说明
 
@@ -115,7 +123,7 @@ npm run deploy
 |---|---|
 | `/` | 首页（浅色高级风格，统计 + 最新产品表格） |
 | `/apps` | 产品列表页（表格排版 + 筛选 + 搜索） |
-| `/submit` | 用户提交页（App/System + 可选图片） |
+| `/submit` | 用户提交页（App/Website/System + 可选图片） |
 | `/admin` | 管理员后台（审核 + 审核开关） |
 
 ## 常见问题

@@ -1,3 +1,4 @@
+import { getTypeMetaMap } from '../catalog';
 import type { FC } from 'hono/jsx';
 import { Layout } from '../components/Layout';
 import { AppTable } from '../components/AppTable';
@@ -12,6 +13,7 @@ export const ListPage: FC<{
   const runtimeData = serializeForScript({
     apps,
     dateLocale: getDateLocale(locale),
+    typeMeta: getTypeMetaMap(messages),
     list: messages.list,
     common: messages.common,
   });
@@ -26,6 +28,7 @@ export const ListPage: FC<{
         <div class="filters" id="filters">
           <button class="filter-tab active" data-filter="all">{messages.list.filters.all}</button>
           <button class="filter-tab" data-filter="app">{messages.list.filters.app}</button>
+          <button class="filter-tab" data-filter="website">{messages.list.filters.website}</button>
           <button class="filter-tab" data-filter="system">{messages.list.filters.system}</button>
           <input
             class="filter-search"
@@ -66,16 +69,14 @@ export const ListPage: FC<{
             let html = '<div class="table-wrap"><table class="table"><thead><tr><th>' + runtime.common.type + '</th><th>' + runtime.common.name + '</th><th>' + runtime.common.description + '</th><th>' + runtime.common.link + '</th><th>' + runtime.common.date + '</th></tr></thead><tbody>';
             list.forEach(function(a) {
               const date = new Date(a.created_at + 'Z').toLocaleDateString(runtime.dateLocale,{month:'short',day:'numeric',year:'numeric'});
-              const tagCls = a.type === 'app' ? 'tag-app' : 'tag-system';
-              const tagLabel = a.type === 'app' ? runtime.common.app : runtime.common.system;
-              const linkLabel = a.type === 'app' ? runtime.common.appStore : runtime.common.github;
+              const typeMeta = runtime.typeMeta[a.type];
               const icon = a.image_key
                 ? '<img class="td-icon" src="/api/images/' + encodeURIComponent(a.image_key) + '" alt="" loading="lazy"/>'
-                : '<div class="td-icon-placeholder">' + (a.type === 'app' ? '📱' : '⚙️') + '</div>';
-              html += '<tr><td><span class="tag ' + tagCls + '">' + tagLabel + '</span></td>';
+                : '<div class="td-icon-placeholder">' + typeMeta.icon + '</div>';
+              html += '<tr><td><span class="tag ' + typeMeta.tagClass + '">' + typeMeta.label + '</span></td>';
               html += '<td><div class="td-name">' + icon + escapeHtml(a.name) + '</div></td>';
               html += '<td class="td-desc">' + escapeHtml(a.description) + '</td>';
-              html += '<td class="td-link"><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + linkLabel + '</a></td>';
+              html += '<td class="td-link"><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + typeMeta.linkLabel + '</a></td>';
               html += '<td class="td-time">' + date + '</td></tr>';
             });
             html += '</tbody></table></div>';

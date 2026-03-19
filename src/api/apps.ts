@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { Env } from '../types';
 import { insertApp, isModerationEnabled, listApproved } from '../db';
 import { getRequestI18n } from '../i18n';
+import { APP_TYPES, type AppType } from '../types';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -24,7 +25,7 @@ app.post('/apps', async (c) => {
     return c.json({ error: messages.submit.errors.missingRequiredFields }, 400);
   }
 
-  if (body.type !== 'app' && body.type !== 'system') {
+  if (!APP_TYPES.includes(body.type as AppType)) {
     return c.json({ error: messages.submit.errors.invalidType }, 400);
   }
 
@@ -33,7 +34,7 @@ app.post('/apps', async (c) => {
 
   await insertApp(c.env.DB, {
     id,
-    type: body.type as 'app' | 'system',
+    type: body.type as AppType,
     name: body.name,
     description: body.description,
     image_key: body.image_key || null,

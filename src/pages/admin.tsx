@@ -1,4 +1,5 @@
 import type { FC } from 'hono/jsx';
+import { getTypeMetaMap } from '../catalog';
 import { Layout } from '../components/Layout';
 import { serializeForScript, type Locale, type Messages } from '../i18n';
 
@@ -10,6 +11,7 @@ export const AdminPage: FC<{
     common: messages.common,
     admin: messages.admin,
     status: messages.status,
+    typeMeta: getTypeMetaMap(messages),
   });
 
   return (
@@ -120,18 +122,16 @@ export const AdminPage: FC<{
 
             let html = '<div class="table-wrap"><table class="table"><thead><tr><th>' + runtime.common.type + '</th><th>' + runtime.common.name + '</th><th>' + runtime.common.description + '</th><th>' + runtime.common.link + '</th><th>' + runtime.common.status + '</th><th>' + runtime.common.actions + '</th></tr></thead><tbody>';
             filtered.forEach(function(a) {
-              const tagCls = a.type === 'app' ? 'tag-app' : 'tag-system';
-              const tagLabel = a.type === 'app' ? runtime.common.app : runtime.common.system;
-              const linkLabel = a.type === 'app' ? runtime.common.appStore : runtime.common.github;
+              const typeMeta = runtime.typeMeta[a.type];
               const icon = a.image_key
                 ? '<img class="td-icon" src="/api/images/' + encodeURIComponent(a.image_key) + '" alt="" loading="lazy"/>'
-                : '<div class="td-icon-placeholder">' + (a.type === 'app' ? '📱' : '⚙️') + '</div>';
+                : '<div class="td-icon-placeholder">' + typeMeta.icon + '</div>';
               const statusCls = 'tag-status tag-' + a.status;
               html += '<tr data-id="' + a.id + '">';
-              html += '<td><span class="tag ' + tagCls + '">' + tagLabel + '</span></td>';
+              html += '<td><span class="tag ' + typeMeta.tagClass + '">' + typeMeta.label + '</span></td>';
               html += '<td><div class="td-name">' + icon + escapeHtml(a.name) + '</div></td>';
               html += '<td class="td-desc">' + escapeHtml(a.description) + '</td>';
-              html += '<td class="td-link"><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + linkLabel + '</a></td>';
+              html += '<td class="td-link"><a href="' + escapeHtml(a.link) + '" target="_blank" rel="noopener">' + typeMeta.linkLabel + '</a></td>';
               html += '<td><span class="' + statusCls + '">' + runtime.status[a.status] + '</span></td>';
               if (a.status === 'pending') {
                 html += '<td><div class="admin-actions"><button class="btn-approve" onclick="adminAction(\\'' + a.id + '\\',\\'approve\\')">' + runtime.admin.actions.approve + '</button><button class="btn-reject" onclick="adminAction(\\'' + a.id + '\\',\\'reject\\')">' + runtime.admin.actions.reject + '</button></div></td>';

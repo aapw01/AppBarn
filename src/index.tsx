@@ -3,6 +3,7 @@ import type { Env } from './types';
 import appsApi from './api/apps';
 import uploadApi from './api/upload';
 import adminApi from './api/admin';
+import { getBrandIconSvg } from './brand';
 import { countByStatus, isModerationEnabled, listApproved } from './db';
 import { getRequestI18n } from './i18n';
 import { HomePage } from './pages/home';
@@ -11,6 +12,22 @@ import { SubmitPage } from './pages/submit';
 import { AdminPage } from './pages/admin';
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.get('/favicon.svg', (c) => {
+  return c.body(getBrandIconSvg({ title: 'AppBarn icon', idPrefix: 'appbarn-favicon' }), 200, {
+    'Content-Type': 'image/svg+xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=31536000, immutable',
+  });
+});
+
+app.get('/brand-icon.svg', (c) => {
+  return c.body(getBrandIconSvg({ title: 'AppBarn brand icon', idPrefix: 'appbarn-download' }), 200, {
+    'Content-Type': 'image/svg+xml; charset=utf-8',
+    'Cache-Control': 'public, max-age=31536000, immutable',
+  });
+});
+
+app.get('/favicon.ico', (c) => c.redirect('/favicon.svg', 301));
 
 app.get('/', async (c) => {
   const { locale, messages } = getRequestI18n(c.req.raw.headers);

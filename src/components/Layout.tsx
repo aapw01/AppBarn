@@ -1,3 +1,4 @@
+import { getBrandIconSvg } from '../brand';
 import type { FC, PropsWithChildren } from 'hono/jsx';
 import { css } from '../styles';
 import { getHtmlLang, LOCALE_COOKIE_NAME, type Locale, type Messages } from '../i18n';
@@ -5,7 +6,7 @@ import { getHtmlLang, LOCALE_COOKIE_NAME, type Locale, type Messages } from '../
 type LayoutProps = PropsWithChildren<{
   title?: string;
   activePath?: string;
-  stats?: { approved: number; apps: number; system: number };
+  stats?: { approved: number; apps: number; websites: number; system: number };
   locale: Locale;
   messages: Messages;
 }>;
@@ -17,19 +18,39 @@ export const Layout: FC<LayoutProps> = ({ title, activePath, stats, locale, mess
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#2C5F2D" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="shortcut icon" href="/favicon.svg" />
         <title>{pageTitle}</title>
         <style dangerouslySetInnerHTML={{ __html: css }} />
       </head>
       <body>
         <nav class="nav">
-          <a href="/" class="nav-brand">App<span>Barn</span></a>
+          <a href="/" class="nav-brand">
+            <span
+              class="nav-brand-mark"
+              aria-hidden="true"
+              dangerouslySetInnerHTML={{ __html: getBrandIconSvg({ size: 34, idPrefix: 'appbarn-nav' }) }}
+            />
+            <span class="nav-brand-wordmark">App<span>Barn</span></span>
+          </a>
           {stats && (
             <div class="nav-stats">
-              <span class="nav-stat"><strong>{stats.approved}</strong> {messages.nav.products}</span>
+              <button type="button" class="nav-stat-btn active" data-filter="all" aria-pressed="true">
+                <span class="nav-stat"><strong>{stats.approved}</strong> {messages.nav.products}</span>
+              </button>
               <span class="nav-stat-sep" />
-              <span class="nav-stat"><strong>{stats.apps}</strong> {messages.nav.apps}</span>
+              <button type="button" class="nav-stat-btn" data-filter="app" aria-pressed="false">
+                <span class="nav-stat"><strong>{stats.apps}</strong> {messages.nav.apps}</span>
+              </button>
               <span class="nav-stat-sep" />
-              <span class="nav-stat"><strong>{stats.system}</strong> {messages.nav.tools}</span>
+              <button type="button" class="nav-stat-btn" data-filter="website" aria-pressed="false">
+                <span class="nav-stat"><strong>{stats.websites}</strong> {messages.nav.websites}</span>
+              </button>
+              <span class="nav-stat-sep" />
+              <button type="button" class="nav-stat-btn" data-filter="system" aria-pressed="false">
+                <span class="nav-stat"><strong>{stats.system}</strong> {messages.nav.tools}</span>
+              </button>
             </div>
           )}
           <div class="nav-links">

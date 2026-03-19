@@ -20,6 +20,8 @@ export const css = `
   --c-danger-light: #FCEAEA;
   --c-tag-app: #3B6BC4;
   --c-tag-app-bg: #EDF2FC;
+  --c-tag-website: #0C7A6A;
+  --c-tag-website-bg: #E8F7F3;
   --c-tag-system: #8B6914;
   --c-tag-system-bg: #FDF6E3;
 
@@ -47,12 +49,35 @@ a { color: inherit; text-decoration: none; }
   max-width: 1120px; margin: 0 auto; padding: 20px 32px;
 }
 .nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-display);
   font-size: 1.35rem; font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--c-text);
 }
-.nav-brand span { color: var(--c-accent); }
+.nav-brand-wordmark { color: var(--c-text); }
+.nav-brand-wordmark span { color: var(--c-accent); }
+.nav-brand-mark {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  flex-shrink: 0;
+  transition: transform var(--transition), filter var(--transition);
+}
+.nav-brand-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 6px 14px rgba(44, 95, 45, 0.14));
+}
+.nav-brand:hover .nav-brand-mark {
+  transform: translateY(-1px) rotate(-2deg);
+}
 .nav-links { display: flex; gap: 28px; align-items: center; }
 .nav-links a {
   font-size: 0.875rem; font-weight: 500;
@@ -69,10 +94,33 @@ a { color: inherit; text-decoration: none; }
 .nav-stats {
   display: flex; align-items: center; gap: 0;
 }
+.nav-stat-btn {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  transition: color var(--transition);
+  position: relative;
+}
+.nav-stat-btn:hover { color: var(--c-text-secondary); }
+.nav-stat-btn.active { color: var(--c-text); }
+.nav-stat-btn.active::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -6px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: var(--c-accent);
+}
 .nav-stat {
   font-size: 0.78rem; color: var(--c-text-muted);
   padding: 0 12px;
 }
+.nav-stat-btn:hover .nav-stat,
+.nav-stat-btn.active .nav-stat { color: inherit; }
 .nav-stat strong {
   font-weight: 700; color: var(--c-text);
   margin-right: 3px;
@@ -289,6 +337,7 @@ a { color: inherit; text-decoration: none; }
   text-transform: uppercase; letter-spacing: 0.04em;
 }
 .tag-app { color: var(--c-tag-app); background: var(--c-tag-app-bg); }
+.tag-website { color: var(--c-tag-website); background: var(--c-tag-website-bg); }
 .tag-system { color: var(--c-tag-system); background: var(--c-tag-system-bg); }
 
 .td-link a {
@@ -595,6 +644,7 @@ a { color: inherit; text-decoration: none; }
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .nav { padding: 16px 20px; }
+  .nav-brand-mark { width: 30px; height: 30px; }
   .btn-submit { padding: 5px 8px; font-size: 0.7rem; }
   .hero { padding: 26px 20px 14px; }
   .hero h1 { font-size: 1.78rem; }

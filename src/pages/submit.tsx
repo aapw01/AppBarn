@@ -10,6 +10,7 @@ export const SubmitPage: FC<{
   const runtimeData = serializeForScript({
     linkLabels: {
       app: messages.submit.labels.linkApp,
+      website: messages.submit.labels.linkWebsite,
       system: messages.submit.labels.linkSystem,
     },
     file: messages.submit.file,
@@ -32,6 +33,7 @@ export const SubmitPage: FC<{
 
           <div class="form-type-tabs" id="typeTabs">
             <button class="form-type-tab active" data-type="app">{messages.submit.tabs.app}</button>
+            <button class="form-type-tab" data-type="website">{messages.submit.tabs.website}</button>
             <button class="form-type-tab" data-type="system">{messages.submit.tabs.system}</button>
           </div>
 
@@ -91,7 +93,7 @@ export const SubmitPage: FC<{
             typeTabs.querySelectorAll('.form-type-tab').forEach(function(t){ t.classList.remove('active'); });
             e.target.classList.add('active');
             typeInput.value = e.target.dataset.type;
-            linkLabel.textContent = e.target.dataset.type === 'app' ? runtime.linkLabels.app : runtime.linkLabels.system;
+            linkLabel.textContent = runtime.linkLabels[e.target.dataset.type];
           });
 
           fileInput.addEventListener('change', function() {

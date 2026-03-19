@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS apps (
   id TEXT PRIMARY KEY,
-  type TEXT NOT NULL CHECK(type IN ('app', 'system')),
+  type TEXT NOT NULL CHECK(type IN ('app', 'system', 'website')),
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   image_key TEXT,
